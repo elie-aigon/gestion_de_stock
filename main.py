@@ -11,12 +11,10 @@ class Stock:
         )
         self.cursor = self.database.cursor()
 
-
     def load_table(self, table):
         self.cursor.execute("SELECT *FROM " + str(table))
         self.results = self.cursor.fetchall()
         return self.results
-
 
     def close_connection(self):
         self.database.close()
@@ -26,7 +24,16 @@ class Stock:
         self.cursor.execute(sql, (nom, description, prix, quantite, categorie))
         self.database.commit()
     
+    def del_product(self, id):
+        sql = "DELETE FROM produit WHERE id = %s"
+        self.cursor.execute(sql, (id,))
+        self.database.commit()
 
+    def mod_product(self, id, nom, description, prix, quantite, categorie):
+        sql = "UPDATE produit SET nom = %s, description = %s, prix = %s, quantite = %s, id_categorie = %s WHERE id = %s;"
+        self.cursor.execute(sql, (nom, description, prix, quantite, categorie, id,))
+        self.database.commit()
+        
 
 class Main:
     def __init__(self):
@@ -68,7 +75,8 @@ class Main:
         
     def add_product_command(self):
         self.add_product_window = tk.Toplevel(self.window)
-        self.add_product_window.geometry("500x500")
+        self.add_product_window.title("Ajouter un produit")
+        self.add_product_window.geometry("200x300")
 
         self.title_name = tk.Label(self.add_product_window, text="Nom :")
         self.input_name = tk.Entry(self.add_product_window)
@@ -80,26 +88,60 @@ class Main:
         self.input_quantite = tk.Entry(self.add_product_window)
         self.title_categorie = tk.Label(self.add_product_window, text="Categorie")
         self.input_categorie = tk.Entry(self.add_product_window)
-        self.valid_button = tk.Button(self.add_product_window, text="OK")
-        self.valid_button.config(command= self.add_product_sql)
-        self.state1 = [self.title_name, self.input_name, self.title_description,self.input_description, self.title_prix, self.input_prix, self.title_quantite, self.input_quantite, self.title_categorie, self.input_categorie, self.valid_button]
-
+        self.valid_state1 = tk.Button(self.add_product_window, text="OK")
+        self.valid_state1.config(command= self.add_product_sql)
+        self.state1 = [self.title_name, self.input_name, self.title_description,self.input_description, self.title_prix, self.input_prix, self.title_quantite, self.input_quantite, self.title_categorie, self.input_categorie, self.valid_state1]
         for element in self.state1:
             element.pack()
 
     def add_product_sql(self):
         self.stock.add_product(self.input_name.get(), self.input_description.get(), self.input_prix.get(), self.input_quantite.get(), self.input_categorie.get())
-        
         self.render_tree()
         self.add_product_window.destroy()
 
-
     def del_product_command(self):
-        pass
+        self.del_product_window = tk.Toplevel(self.window)
+        self.del_product_window.title("Supprimer un produit")
+        self.del_product_window.geometry("200x100")
+        self.aff_id = tk.Label(self.del_product_window, text="ID")
+        self.input_id = tk.Entry(self.del_product_window)
+        self.valid_state2 = tk.Button(self.del_product_window, text="OK")
+        self.valid_state2.config(command=self.del_product_sql)
+        self.state2 = [self.aff_id, self.input_id, self.valid_state2]
+        for element in self.state2:
+            element.pack()
 
-    def mod_product_command(self):
-        self.reset_screen()
-        self.state = 3
+    def del_product_sql(self):
+        self.stock.del_product(self.input_id.get())
+        self.render_tree()
+        self.del_product_window.destroy()
+
+    def mod_product_command(self): 
+        self.mod_product_window = tk.Toplevel(self.window)
+        self.mod_product_window.title("Modifier un produit")
+        self.mod_product_window.geometry("200x300")
+        self.aff_id_n3 = tk.Label(self.mod_product_window, text="ID")
+        self.input_id_n3 = tk.Entry(self.mod_product_window)
+        self.title_name_n3 = tk.Label(self.mod_product_window, text="Nom :")
+        self.input_name_n3 = tk.Entry(self.mod_product_window)
+        self.title_description_n3 = tk.Label(self.mod_product_window, text="Description :")
+        self.input_description_n3 = tk.Entry(self.mod_product_window)
+        self.title_prix_n3 = tk.Label(self.mod_product_window, text="Prix :")
+        self.input_prix_n3 = tk.Entry(self.mod_product_window)
+        self.title_quantite_n3 = tk.Label(self.mod_product_window, text="Quantité :")
+        self.input_quantite_n3 = tk.Entry(self.mod_product_window)
+        self.title_categorie_n3 = tk.Label(self.mod_product_window, text="Categorie")
+        self.input_categorie_n3 = tk.Entry(self.mod_product_window)
+        self.valid_state_n3 = tk.Button(self.mod_product_window, text="OK")
+        self.valid_state_n3.config(command= self.mod_product_sql)
+        self.state3 = [self.aff_id_n3, self.input_id_n3, self.title_name_n3, self.input_name_n3, self.title_description_n3,self.input_description_n3, self.title_prix_n3, self.input_prix_n3, self.title_quantite_n3, self.input_quantite_n3, self.title_categorie_n3, self.input_categorie_n3, self.valid_state_n3]
+        for element in self.state3:
+            element.pack()
+
+    def mod_product_sql(self):
+        self.stock.mod_product(self.input_id_n3.get(), self.input_name_n3.get(), self.input_description_n3.get(), self.input_prix_n3.get(), self.input_quantite_n3.get(), self.input_categorie_n3.get())
+        self.render_tree()
+        self.mod_product_window.destroy()
 
     def import_csv_command(self):
         self.reset_screen()
@@ -118,12 +160,9 @@ class Main:
             self.current_screen.append(element)
         self.window.mainloop()
 
-
-
 main = Main()
-
 main.render()
-
+ 
 
 
 

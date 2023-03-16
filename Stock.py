@@ -26,3 +26,11 @@ class Stock:
         self.database.commit()
     
 
+    
+    def del_product(self, id):
+        sql = "DELETE FROM produit WHERE id = %s"
+        self.cursor.execute(sql, (id,))
+        self.database.commit()
+
+s = Stock("localhost", "root", "root", "boutique")
+s.del_product(15)
